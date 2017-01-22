@@ -12,8 +12,7 @@
 
 -spec verify_support(mongoose_stanza:t(), amp_rules()) -> mongoose_stanza:t().
 verify_support(Acc, Rules) ->
-    Supp = mongoose_stanza:get(supported, Acc),
-    mongoose_stanza:put(supported, Supp ++ [ verify_rule_support(Rule) || Rule <- Rules ], Acc).
+    mongoose_stanza:append(supported, [ verify_rule_support(Rule) || Rule <- Rules ], Acc).
 
 -spec verify_rule_support(amp_rule()) -> amp_rule_support().
 verify_rule_support(#amp_rule{action = alert} = Rule) ->

@@ -216,13 +216,12 @@ get_local_identity(Acc, _From, _To, Node, _Lang) when is_binary(Node) ->
                         Node :: binary(),
                         Lang :: ejabberd:lang()) -> mongoose_stanza:t().
 get_local_features(Acc, _From, To, <<>>, _Lang) ->
-    Feats = mongoose_stanza:get(features, Acc, []),
     Host = To#jid.lserver,
-    NFeats = ets:select(disco_features, [{{{'_', Host}}, [], ['$_']}]) ++ Feats,
-    mongoose_stanza:put(features, NFeats, Acc);
+    NFeats = ets:select(disco_features, [{{{'_', Host}}, [], ['$_']}]),
+    mongoose_stanza:append(features, NFeats, Acc);
 
 get_local_features(Acc, _From, _To, Node, _Lang) when is_binary(Node) ->
-    #{features := F} = Acc,
+    F = mongoose_stanza:get(features, Acc, []),
     case F of
         [] ->
             {error, ?ERR_ITEM_NOT_FOUND};
@@ -417,7 +416,6 @@ process_sm_iq_info(false, _From, _To, #iq{type = get, sub_el = SubEl} = IQ) ->
                       Node :: binary(),
                       Lang :: ejabberd:lang()) -> mongoose_stanza:t().
 get_sm_identity(Acc, _From, #jid{luser = LUser, lserver=LServer}, _Node, _Lang) ->
-    Ids = mongoose_stanza:get(sm_identity, Acc, []),
     Id = case ejabberd_auth:is_user_exists(LUser, LServer) of
             true ->
                [#xmlel{name = <<"identity">>, attrs = [{<<"category">>, <<"account">>},
@@ -426,7 +424,7 @@ get_sm_identity(Acc, _From, #jid{luser = LUser, lserver=LServer}, _Node, _Lang) 
             _ ->
                []
          end,
-    mongoose_stanza:put(sm_identity, Ids ++ Id, Acc).
+    mongoose_stanza:append(sm_identity, Id, Acc).
 
 
 -spec get_sm_features(Acc :: mongoose_stanza:t(),

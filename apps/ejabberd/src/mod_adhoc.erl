@@ -226,8 +226,8 @@ process_adhoc_request(From, To, #iq{sub_el = SubEl} = IQ, Hook) ->
             IQ#iq{type = error, sub_el = [SubEl, Error]};
         #adhoc_request{} = AdhocRequest ->
             Host = To#jid.lserver,
-            Stanza = mongoose_stanza:new(),
-            Resp = ejabberd_hooks:run_fold(Hook, Host, Stanza,
+            Acc = mongoose_stanza:new(),
+            Resp = ejabberd_hooks:run_fold(Hook, Host, Acc,
                                          [From, To, AdhocRequest]),
             case mongoose_stanza:get(response, Resp, ignore) of
                 ignore ->

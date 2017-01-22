@@ -202,7 +202,7 @@ get_recent_messages(Caller, Before, Limit) ->
     get_recent_messages(Caller, undefined, Before, Limit).
 
 get_recent_messages(Caller, With, 0, Limit) ->
-    {MegaSecs, Secs, _} = os:timestamp(),
+    {MegaSecs, Secs, _} = p1_time_compat:timestamp(),
     Future = (MegaSecs + 1) * 1000000 + Secs, % to make sure we return all messages
     get_recent_messages(Caller, With, Future, Limit);
 get_recent_messages(Caller, With, Before, Limit) ->

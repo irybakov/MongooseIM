@@ -456,7 +456,7 @@ handle_get_prefs_result({error, Reason}, IQ) ->
 handle_lookup_messages(
   From = #jid{},
   ArcJID = #jid{},
-  IQ=#iq{xmlns = MamNs, sub_el = QueryEl}) ->
+  IQ = #iq{xmlns = MamNs, sub_el = QueryEl}) ->
     Now = mod_mam_utils:now_to_microseconds(os:timestamp()),
     {ok, Host} = mongoose_subhosts:get_host(ArcJID#jid.lserver),
     ArcID = archive_id_int(Host, ArcJID),

@@ -410,7 +410,7 @@ handle_info(stop_hibernated_persistent_rooms,
                    hibernated_room_timeout = Timeout} = State) when is_integer(Timeout) ->
     ?INFO_MSG("Closing hibernated persistent rooms", []),
     Supervisor = gen_mod:get_module_proc(ServerHost, ejabberd_mod_muc_sup),
-    Now = os:timestamp(),
+    Now = p1_time_compat:timestamp(),
     [stop_if_hibernated(Pid, Now, Timeout * 1000) ||
      {undefined, Pid, worker, _} <- supervisor:which_children(Supervisor)],
 

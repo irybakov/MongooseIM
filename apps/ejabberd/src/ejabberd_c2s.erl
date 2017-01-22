@@ -1157,11 +1157,11 @@ handle_info({force_update_presence, LUser}, StateName,
     end,
     {next_state, StateName, NewStateData};
 handle_info({send_filtered, Feature, From, To, Packet}, StateName, StateData) ->
-    Acc = mongoose_stanza:from_kv(drop, true),
+    Acc = mongoose_stanza:new(),
     Res = ejabberd_hooks:run_fold(c2s_filter_packet, StateData#state.server,
                                   Acc, [StateData#state.server, StateData,
                                   Feature, To, Packet]),
-    case {mongoose_stanza:get(drop, Res), StateData#state.jid} of
+    case {mongoose_stanza:get(drop, Res, true), StateData#state.jid} of
         {true, _} ->
             ?DEBUG("Dropping packet from ~p to ~p", [jid:to_binary(From), jid:to_binary(To)]),
             fsm_next_state(StateName, StateData);
@@ -1322,6 +1322,7 @@ handle_routed_broadcast({item, IJID, ISubscription}, StateData) ->
 handle_routed_broadcast({exit, Reason}, _StateData) ->
     {exit, Reason};
 handle_routed_broadcast({privacy_list, PrivList, PrivListName}, StateData) ->
+    % all it does it compare the two lists, does it make sense to use hook here?
     case ejabberd_hooks:run_fold(privacy_updated_list, StateData#state.server,
                                  false, [StateData#state.privacy_list, PrivList]) of
         false ->
@@ -1365,6 +1366,7 @@ privacy_list_push_iq(PrivListName) ->
                             StateData :: state()) -> routing_result().
 handle_routed_presence(From, To, Packet = #xmlel{attrs = Attrs}, StateData) ->
     Acc = mongoose_stanza:from_kv(c2s_state, StateData),
+    % should be changed so as not to put the whole state in an acc
     Acc1 = ejabberd_hooks:run_fold(c2s_presence_in, StateData#state.server,
                                     Acc, [{From, To, Packet}]),
     State = mongoose_stanza:get(c2s_state, Acc1),

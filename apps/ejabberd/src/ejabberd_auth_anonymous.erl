@@ -212,10 +212,10 @@ purge_hook(false, _LUser, _LServer) ->
 purge_hook(true, LUser, LServer) ->
     ejabberd_hooks:run(anonymous_purge_hook, LServer, [LUser, LServer]).
 
--spec session_cleanup(Acc :: mongoose_stanza:t(), LUser :: ejabberd:luser(),
+-spec session_cleanup(Acc :: any(), LUser :: ejabberd:luser(),
                       LServer :: ejabberd:lserver(),
                       LResource :: ejabberd:lresource(),
-                      SID :: ejabberd_sm:sid()) -> mongoose_stanza:t().
+                      SID :: ejabberd_sm:sid()) -> any().
 session_cleanup(Acc, LUser, LServer, _LResource, SID) ->
     remove_connection(SID, LUser, LServer),
     Acc.
