@@ -56,26 +56,26 @@ check_packet(Packet = #xmlel{attrs = Attrs}, Event) ->
 
 -spec check_packet(xmlel(), jid(), amp_event()) -> xmlel() | drop.
 check_packet(Packet = #xmlel{name = <<"message">>}, #jid{lserver = Host} = From, Event) ->
-    Acc = mongoose_stanza:from_element(Packet),
+    Acc = mongoose_acc:from_element(Packet),
     Nacc = ejabberd_hooks:run_fold(amp_check_packet, Host, Acc, [From, Event]),
-    mongoose_stanza:get(element, Nacc);
+    mongoose_acc:get(element, Nacc);
 check_packet(Packet, _, _) ->
     Packet.
 
 add_local_features(Acc, _From, _To, ?NS_AMP, _Lang) ->
-    mongoose_stanza:append(features, amp_features(), Acc);
+    mongoose_acc:append(features, amp_features(), Acc);
 add_local_features(Acc, _From, _To, _NS, _Lang) ->
     Acc.
 
 add_stream_feature(Feat, _Host) ->
     lists:keystore(<<"amp">>, #xmlel.name, Feat, ?AMP_FEATURE).
 
--spec amp_check_packet(mongoose_stanza:t() | drop, jid(), amp_event()) -> mongoose_stanza:t().
+-spec amp_check_packet(mongoose_acc:t() | drop, jid(), amp_event()) -> mongoose_acc:t().
 amp_check_packet(Acc, From, Event) ->
-    Packet = mongoose_stanza:get(element, Acc),
+    Packet = mongoose_acc:get(element, Acc),
     case do_amp_check_packet(Packet, From, Event) of
-        drop -> mongoose_stanza:put(element, drop, Acc);
-        NPacket -> mongoose_stanza:put(element, NPacket, Acc)
+        drop -> mongoose_acc:put(element, drop, Acc);
+        NPacket -> mongoose_acc:put(element, NPacket, Acc)
     end.
 
 do_amp_check_packet(#xmlel{name = <<"message">>} = Packet, From, Event) ->
@@ -119,20 +119,20 @@ process_amp_rules(Packet, From, Event, Rules) ->
 %% @doc ejabberd_hooks helpers
 -spec verify_support(binary(), amp_rules()) -> [amp_rule_support()].
 verify_support(Host, Rules) ->
-    Acc = mongoose_stanza:new(),
+    Acc = mongoose_acc:new(),
     Res = ejabberd_hooks:run_fold(amp_verify_support, Host, Acc,
                                   [Rules]),
-    mongoose_stanza:get(supported, Res, []).
+    mongoose_acc:get(supported, Res, []).
 
 -spec determine_strategy(xmlel(), jid(), amp_event()) -> amp_strategy().
 determine_strategy(Packet, From, Event) ->
-    Acc = mongoose_stanza:new(),
-    Acc1 = mongoose_stanza:put(strategy, amp_strategy:null_strategy(), Acc),
+    Acc = mongoose_acc:new(),
+    Acc1 = mongoose_acc:put(strategy, amp_strategy:null_strategy(), Acc),
     To = message_target(Packet),
     Res = ejabberd_hooks:run_fold(amp_determine_strategy, host(From),
                             Acc1,
                             [From, To, Packet, Event]),
-    mongoose_stanza:get(strategy, Res).
+    mongoose_acc:get(strategy, Res).
 
 -spec fold_apply_rules(xmlel(), jid(), amp_strategy(), [amp_rule()]) ->
                               no_match | {matched | undecided, amp_rule()}.

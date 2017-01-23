@@ -188,8 +188,8 @@ get_prefs({GlobalDefaultMode, _, _}, Host, UserID, _ArcJID) ->
     decode_prefs_rows(Rows, GlobalDefaultMode, [], []).
 
 
--spec remove_archive(mongoose_stanza:t(), ejabberd:server(), mod_mam:archive_id(),
-                     ejabberd:jid()) -> mongoose_stanza:t().
+-spec remove_archive(mongoose_acc:t(), ejabberd:server(), mod_mam:archive_id(),
+                     ejabberd:jid()) -> mongoose_acc:t().
 remove_archive(Acc, Host, UserID, _ArcJID) ->
     SUserID = integer_to_list(UserID),
     {updated, _} =

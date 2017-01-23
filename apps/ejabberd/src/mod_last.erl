@@ -223,9 +223,9 @@ get_last(LUser, LServer) ->
 count_active_users(LServer, Timestamp) ->
     ?BACKEND:count_active_users(LServer, Timestamp).
 
--spec on_presence_update(mongoose_stanza:t(), ejabberd:user(), ejabberd:server(),
+-spec on_presence_update(mongoose_acc:t(), ejabberd:user(), ejabberd:server(),
                          ejabberd:resource(),
-                         Status :: binary()) -> mongoose_stanza:t() | {error, term()}.
+                         Status :: binary()) -> mongoose_acc:t() | {error, term()}.
 on_presence_update(Acc, LUser, LServer, _Resource, Status) ->
     TimeStamp = now_to_seconds(os:timestamp()),
     case store_last_info(LUser, LServer, TimeStamp, Status) of

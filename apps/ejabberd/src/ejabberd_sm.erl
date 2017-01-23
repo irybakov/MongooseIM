@@ -218,7 +218,7 @@ check_in_subscription(Acc, User, Server, _JID, _Type, _Reason) ->
 
 
 -spec bounce_offline_message(Acc, From, To, Packet) -> {stop, Acc} when
-      Acc :: mongoose_stanza:t(),
+      Acc :: mongoose_acc:t(),
       From :: ejabberd:jid(),
       To :: ejabberd:jid(),
       Packet :: jlib:xmlel().
@@ -234,8 +234,8 @@ bounce_offline_message(#jid{server = Server} = From, To, Packet) ->
     ejabberd_router:route(To, From, Err),
     stop.
 
--spec disconnect_removed_user(mongoose_stanza:t(), User :: ejabberd:user(),
-                              Server :: ejabberd:server()) -> mongoose_stanza:t().
+-spec disconnect_removed_user(mongoose_acc:t(), User :: ejabberd:user(),
+                              Server :: ejabberd:server()) -> mongoose_acc:t().
 disconnect_removed_user(Acc, User, Server) ->
     ejabberd_sm:route(jid:make(<<>>, <<>>, <<>>),
                       jid:make(User, Server, <<>>),
@@ -663,10 +663,10 @@ do_route_no_resource(_, _, _, _, _) ->
       To :: ejabberd:jid(),
       Packet :: jlib:xmlel().
 do_route_offline(<<"message">>, _, From, To, Packet)  ->
-    Acc = mongoose_stanza:new(),
+    Acc = mongoose_acc:new(),
     Acc2 = ejabberd_hooks:run_fold(sm_filter_offline_message, To#jid.lserver,
                    Acc, [From, To, Packet]),
-    Drop = mongoose_stanza:get(drop, Acc2, false),
+    Drop = mongoose_acc:get(drop, Acc2, false),
     case Drop of
         false ->
             route_message(From, To, Packet);
@@ -734,7 +734,7 @@ is_privacy_allow(From, To, Packet, PrivacyList) ->
       To :: ejabberd:jid(),
       Packet :: jlib:xmlel().
 route_message(From, To, Packet) ->
-    Acc = mongoose_stanza:from_element(Packet),
+    Acc = mongoose_acc:from_element(Packet),
     LUser = To#jid.luser,
     LServer = To#jid.lserver,
     PrioPid = get_user_present_pids(LUser, LServer),

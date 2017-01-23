@@ -253,10 +253,10 @@ archive_size(Size, Host, ArcID, _ArcJID) when is_integer(Size) ->
     Result.
 
 
--spec remove_archive(mongoose_stanza:t(),
+-spec remove_archive(mongoose_acc:t(),
                      ejabberd:server(),
                      mod_mam:archive_id(),
-                     ejabberd:jid()) -> mongoose_stanza:t().
+                     ejabberd:jid()) -> mongoose_acc:t().
 remove_archive(Acc, Host, ArcID, _ArcJID) ->
     wait_flushing(Host, ArcID),
     Acc.

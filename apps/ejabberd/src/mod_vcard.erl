@@ -327,7 +327,7 @@ get_local_features(Acc, _From, _To, Node, _Lang) ->
         _ ->
             []
     end,
-    mongoose_stanza:append(features, NFeat, Acc).
+    mongoose_acc:append(features, NFeat, Acc).
 
 remove_user(Acc, User, Server) ->
     remove_user(User, Server),
@@ -406,9 +406,9 @@ do_route(_VHost, From, To, Packet, #iq{type = set,
 do_route(VHost, From, To, _Packet, #iq{type = get,
                                        xmlns = ?NS_DISCO_INFO,
                                        lang = Lang} = IQ) ->
-    Stanza = mongoose_stanza:new(),
+    Stanza = mongoose_acc:new(),
     Res = ejabberd_hooks:run_fold(disco_info, VHost, Stanza, [VHost, ?MODULE, "", ""]),
-    Info = mongoose_stanza:get(info, Res, []),
+    Info = mongoose_acc:get(info, Res, []),
     ResIQ = IQ#iq{type = result,
                   sub_el = [#xmlel{name = <<"query">>,
                                    attrs =[{<<"xmlns">>, ?NS_DISCO_INFO}],

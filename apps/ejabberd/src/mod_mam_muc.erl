@@ -285,7 +285,7 @@ room_process_mam_iq(From = #jid{lserver = Host}, To, IQ) ->
     end.
 
 %% @doc This hook is called from `mod_muc:forget_room(Host, Name)'.
--spec forget_room(mongoose_stanza:t(), ejabberd:lserver(), binary()) -> mongoose_stanza:t().
+-spec forget_room(mongoose_acc:t(), ejabberd:lserver(), binary()) -> mongoose_acc:t().
 forget_room(Acc, LServer, RoomName) ->
     forget_room(LServer, RoomName),
     Acc.

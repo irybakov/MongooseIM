@@ -39,20 +39,20 @@ processing(El) ->
     ok.
 
 processing_stage_one(El, _Arg1, _Arg2) ->
-    Acc = mongoose_stanza:from_element(El),
+    Acc = mongoose_acc:from_element(El),
     Acc2 = ejabberd_hooks:run_fold(a_hook, [Acc]),
     something_with_result(Acc2),
     ok.
 
 processing_stage_two(El, _Arg3) ->
-    Acc = mongoose_stanza:from_kv(value, 123),
+    Acc = mongoose_acc:from_kv(value, 123),
     ejabberd_hooks:run(another_hook, [Acc]),
     El.
 
 something_with_result(Acc) ->
-    R = mongoose_stanza:get(sthg, Acc),
+    R = mongoose_acc:get(sthg, Acc),
     Nr = do_something_with_result(R),
-    mongoose_stanza:put(sthg, Nr, Acc).
+    mongoose_acc:put(sthg, Nr, Acc).
 
 do_something_with_result(Res) ->
     ok.
@@ -60,7 +60,7 @@ do_something_with_result(Res) ->
 %%%% STAGE TWO - FOLLOW %%%%
 
 processing(El) ->
-    Acc = mongoose_stanza:new(#{element => El}),
+    Acc = mongoose_acc:new(#{element => El}),
     Acc2 = processing_stage_one(Acc, 1, 2),
     Acc3 = processing_stage_two(Acc2, 3),
     Acc3.
@@ -71,14 +71,14 @@ processing_stage_one(Acc, _Arg1, _Arg2) ->
     Acc2.
 
 processing_stage_two(Acc, _Arg3) ->
-    Acc1 = mongoose_stanza:put(value, 123, Acc),
+    Acc1 = mongoose_acc:put(value, 123, Acc),
     Acc2 = ejabberd_hooks:run(another_hook, [Acc1]),
     Acc2.
 
 something_with_result(Acc) ->
-    R = mongoose_stanza:get(sthg, Acc),
+    R = mongoose_acc:get(sthg, Acc),
     Nr = do_something_with_result(R),
-    mongoose_stanza:put(sthg, Nr, Acc).
+    mongoose_acc:put(sthg, Nr, Acc).
 
 do_something_with_result(Res) ->
     ok.

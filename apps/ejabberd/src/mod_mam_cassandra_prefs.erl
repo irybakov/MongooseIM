@@ -198,8 +198,8 @@ get_prefs({GlobalDefaultMode, _, _}, _Host, _UserID, UserJID) ->
     decode_prefs_rows(Rows, GlobalDefaultMode, [], []).
 
 
--spec remove_archive(mongoose_stanza:t(), ejabberd:server(), mod_mam:archive_id(),
-                     ejabberd:jid()) -> mongoose_stanza:t().
+-spec remove_archive(mongoose_acc:t(), ejabberd:server(), mod_mam:archive_id(),
+                     ejabberd:jid()) -> mongoose_acc:t().
 remove_archive(Acc, _Host, _UserID, UserJID) ->
     PoolName = pool_name(UserJID),
     BUserJID = bare_jid(UserJID),

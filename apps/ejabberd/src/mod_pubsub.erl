@@ -495,14 +495,14 @@ is_subscribed(Recipient, NodeOwner, NodeOptions) ->
 %%
 
 -spec disco_local_identity(
-        Acc    :: mongoose_stanza:t(),
+        Acc    :: mongoose_acc:t(),
           _From  :: jid(),
           To     :: jid(),
           Node   :: <<>> | mod_pubsub:nodeId(),
           Lang   :: binary())
-        -> mongoose_stanza:t().
+        -> mongoose_acc:t().
 disco_local_identity(Acc, _From, To, <<>>, _Lang) ->
-    Ids = mongoose_stanza:get(local_identity, Acc, []),
+    Ids = mongoose_acc:get(local_identity, Acc, []),
     NIds = case lists:member(?PEPNODE, plugins(To#jid.lserver)) of
         true ->
             [#xmlel{name = <<"identity">>,
@@ -517,16 +517,16 @@ disco_local_identity(Acc, _From, _To, _Node, _Lang) ->
     Acc.
 
 -spec disco_local_features(
-        Acc    :: mongoose_stanza:t(),
+        Acc    :: mongoose_acc:t(),
           _From  :: jid(),
           To     :: jid(),
           Node   :: <<>> | mod_pubsub:nodeId(),
           Lang   :: binary())
-        -> mongoose_stanza:t().
+        -> mongoose_acc:t().
 disco_local_features(Acc, _From, To, <<>>, _Lang) ->
     Host = To#jid.lserver,
     NFeats = [feature(F) || F <- features(Host, <<>>)],
-    mongoose_stanza:append(features, NFeats, Acc);
+    mongoose_acc:append(features, NFeats, Acc);
 disco_local_features(Acc, _From, _To, _Node, _Lang) ->
     Acc.
 
@@ -534,15 +534,15 @@ disco_local_items(Acc, _From, _To, <<>>, _Lang) -> Acc;
 disco_local_items(Acc, _From, _To, _Node, _Lang) -> Acc.
 
 -spec disco_sm_identity(
-        Acc  :: mongoose_stanza:t(),
+        Acc  :: mongoose_acc:t(),
           From :: jid(),
           To   :: jid(),
           Node :: mod_pubsub:nodeId(),
           Lang :: binary())
-        -> mongoose_stanza:t().
+        -> mongoose_acc:t().
 disco_sm_identity(Acc, From, To, Node, _Lang) ->
     NIds = disco_identity(jid:to_lower(jid:to_bare(To)), Node, From),
-    mongoose_stanza:append(sm_identity, NIds, Acc).
+    mongoose_acc:append(sm_identity, NIds, Acc).
 
 disco_identity(_Host, <<>>, _From) ->
     [#xmlel{name = <<"identity">>,
@@ -573,15 +573,15 @@ disco_identity(Host, Node, From) ->
     end.
 
 -spec disco_sm_features(
-        Acc  :: mongoose_stanza:t(),
+        Acc  :: mongoose_acc:t(),
           From :: jid(),
           To   :: jid(),
           Node :: mod_pubsub:nodeId(),
           Lang :: binary())
-        -> mongoose_stanza:t().
+        -> mongoose_acc:t().
 disco_sm_features(Acc, From, To, Node, _Lang) ->
     NFeat = disco_features(jid:to_lower(jid:to_bare(To)), Node, From),
-    mongoose_stanza:append(sm_features, NFeat, Acc).
+    mongoose_acc:append(sm_features, NFeat, Acc).
 
 disco_features(Host, <<>>, _From) ->
     [?NS_PUBSUB | [feature(F) || F <- plugin_features(Host, <<"pep">>)]];
@@ -599,16 +599,16 @@ disco_features(Host, Node, From) ->
     end.
 
 -spec disco_sm_items(
-        Acc  :: mongoose_stanza:t(),
+        Acc  :: mongoose_acc:t(),
           From :: jid(),
           To   :: jid(),
           Node :: mod_pubsub:nodeId(),
           Lang :: binary())
-        -> mongoose_stanza:t().
+        -> mongoose_acc:t().
 disco_sm_items(Acc, From, To, Node, _Lang) ->
-    OtherItems = mongoose_stanza:get(sm_items, Acc, []),
+    OtherItems = mongoose_acc:get(sm_items, Acc, []),
     NItems = lists:usort(OtherItems ++ disco_items(jid:to_lower(jid:to_bare(To)), Node, From)),
-    mongoose_stanza:put(sm_items, NItems, Acc).
+    mongoose_acc:put(sm_items, NItems, Acc).
 
 -spec disco_items(
         Host :: mod_pubsub:host(),
@@ -927,9 +927,9 @@ do_route(ServerHost, Access, Plugins, Host, From, To, Packet) ->
                             #xmlel{attrs = QAttrs} = SubEl,
                             Node = xml:get_attr_s(<<"node">>, QAttrs),
                             InfoResp = ejabberd_hooks:run_fold(disco_info, ServerHost,
-                                                           mongoose_stanza:new(),
+                                                           mongoose_acc:new(),
                                                            [ServerHost, ?MODULE, <<>>, <<>>]),
-                            Info = mongoose_stanza:get(info, InfoResp, []),
+                            Info = mongoose_acc:get(info, InfoResp, []),
                             Res = case iq_disco_info(Host, Node, From, Lang) of
                                       {result, IQRes} ->
                                           jlib:iq_to_xml(IQ#iq{type = result,

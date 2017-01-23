@@ -958,12 +958,12 @@ process_outgoing_stanza(error, _Name, Args) ->
     end;
 process_outgoing_stanza(ToJID, <<"presence">>, Args) ->
     {_Attrs, NewEl, FromJID, StateData, Server, User} = Args,
-    Acc = mongoose_stanza:from_element(NewEl),
+    Acc = mongoose_acc:from_element(NewEl),
     Res = ejabberd_hooks:run_fold(c2s_update_presence,
                                          Server,
                                          Acc,
                                          [User, Server]),
-    PresenceEl = mongoose_stanza:get(element, Res),
+    PresenceEl = mongoose_acc:get(element, Res),
     ejabberd_hooks:run(user_send_packet,
                        Server,
                        [FromJID, ToJID, PresenceEl]),
@@ -1140,13 +1140,13 @@ handle_info({force_update_presence, LUser}, StateName,
     NewStateData =
     case StateData#state.pres_last of
         #xmlel{name = <<"presence">>} ->
-            Stanza = mongoose_stanza:from_kv(packet, StateData#state.pres_last),
+            Stanza = mongoose_acc:from_kv(packet, StateData#state.pres_last),
             Res = ejabberd_hooks:run_fold(
                            c2s_update_presence,
                            LServer,
                            Stanza,
                            [LUser, LServer]),
-            PresenceEl = mongoose_stanza:get(packet, Res),
+            PresenceEl = mongoose_acc:get(packet, Res),
             StateData2 = StateData#state{pres_last = PresenceEl},
             presence_update(StateData2#state.jid,
                             PresenceEl,
@@ -1157,11 +1157,11 @@ handle_info({force_update_presence, LUser}, StateName,
     end,
     {next_state, StateName, NewStateData};
 handle_info({send_filtered, Feature, From, To, Packet}, StateName, StateData) ->
-    Acc = mongoose_stanza:new(),
+    Acc = mongoose_acc:new(),
     Res = ejabberd_hooks:run_fold(c2s_filter_packet, StateData#state.server,
                                   Acc, [StateData#state.server, StateData,
                                   Feature, To, Packet]),
-    case {mongoose_stanza:get(drop, Res, true), StateData#state.jid} of
+    case {mongoose_acc:get(drop, Res, true), StateData#state.jid} of
         {true, _} ->
             ?DEBUG("Dropping packet from ~p to ~p", [jid:to_binary(From), jid:to_binary(To)]),
             fsm_next_state(StateName, StateData);
@@ -1365,11 +1365,11 @@ privacy_list_push_iq(PrivListName) ->
 -spec handle_routed_presence(From :: ejabberd:jid(), To :: ejabberd:jid(), Packet :: jlib:xmlel(),
                             StateData :: state()) -> routing_result().
 handle_routed_presence(From, To, Packet = #xmlel{attrs = Attrs}, StateData) ->
-    Acc = mongoose_stanza:from_kv(c2s_state, StateData),
+    Acc = mongoose_acc:from_kv(c2s_state, StateData),
     % should be changed so as not to put the whole state in an acc
     Acc1 = ejabberd_hooks:run_fold(c2s_presence_in, StateData#state.server,
                                     Acc, [{From, To, Packet}]),
-    State = mongoose_stanza:get(c2s_state, Acc1),
+    State = mongoose_acc:get(c2s_state, Acc1),
     case xml:get_attr_s(<<"type">>, Attrs) of
         <<"probe">> ->
             {LFrom, LBFrom} = lowcase_and_bare(From),
@@ -2295,13 +2295,13 @@ process_unauthenticated_stanza(StateData, El) ->
             end,
     case jlib:iq_query_info(NewEl) of
         #iq{} = IQ ->
-            Acc = mongoose_stanza:new(),
+            Acc = mongoose_acc:new(),
             Res = ejabberd_hooks:run_fold(c2s_unauthenticated_iq,
                                           StateData#state.server,
                                           Acc,
                                           [StateData#state.server, IQ,
                                            StateData#state.ip]),
-            case mongoose_stanza:get(response, Res, undefined) of
+            case mongoose_acc:get(response, Res, undefined) of
                 undefined ->
                     % The only reasonable IQ's here are auth and register IQ's
                     % They contain secrets, so don't include subelements to response

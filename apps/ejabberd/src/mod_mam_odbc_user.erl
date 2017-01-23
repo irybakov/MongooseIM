@@ -124,9 +124,9 @@ archive_id(undefined, Host, _ArcJID=#jid{lserver = Server, luser = UserName}) ->
 archive_id(ArcID, _Host, _ArcJID) ->
     ArcID.
 
--spec remove_archive(Acc :: mongoose_stanza:t(), Host :: ejabberd:server(),
+-spec remove_archive(Acc :: mongoose_acc:t(), Host :: ejabberd:server(),
                      ArchiveID :: mod_mam:archive_id(),
-                     ArchiveJID :: ejabberd:jid()) -> mongoose_stanza:t().
+                     ArchiveJID :: ejabberd:jid()) -> mongoose_acc:t().
 remove_archive(Acc, Host, _ArcID, _ArcJID=#jid{lserver = Server, luser = UserName}) ->
     SUserName = ejabberd_odbc:escape(UserName),
     SServer   = ejabberd_odbc:escape(Server),

@@ -93,7 +93,7 @@ unauthenticated_iq_register(Acc, Server, #iq{xmlns = ?NS_REGISTER} = IQ, IP) ->
                                        IQ,
                                        Address),
     Resp = set_sender(jlib:iq_to_xml(ResIQ), make_host_only_JID(Server)),
-    mongoose_stanza:put(response, Resp, Acc);
+    mongoose_acc:put(response, Resp, Acc);
 unauthenticated_iq_register(Acc, _Server, _IQ, _IP) ->
     Acc.
 

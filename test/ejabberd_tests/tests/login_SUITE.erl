@@ -219,7 +219,7 @@ register(Config) ->
     ct:pal("~p", [{AdminU, AdminS, AdminP}]),
 
     Res = escalus_ejabberd:rpc(ejabberd_auth, try_register, [AdminU, AdminS, AdminP]),
-    #{} = escalus_ejabberd:rpc(mongoose_stanza, to_map, [Res]),
+    #{} = escalus_ejabberd:rpc(mongoose_acc, to_map, [Res]),
 
     escalus:story(Config, [{admin, 1}], fun(Admin) ->
             escalus:create_users(Config, escalus:get_users([Name1, Name2])),

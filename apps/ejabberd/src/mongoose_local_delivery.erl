@@ -14,15 +14,15 @@
 
 
 do_route(From, To, OrigPacket, LDstDomain, Handler) ->
-    Acc = mongoose_stanza:from_element(OrigPacket),
-    Acc1 = mongoose_stanza:put(from, From, Acc),
-    Acc2 = mongoose_stanza:put(to, To, Acc1),
-    Acc3 = mongoose_stanza:put(routing_decision, send, Acc2),
+    Acc = mongoose_acc:from_element(OrigPacket),
+    Acc1 = mongoose_acc:put(from, From, Acc),
+    Acc2 = mongoose_acc:put(to, To, Acc1),
+    Acc3 = mongoose_acc:put(routing_decision, send, Acc2),
     %% Filter locally
     Acc4 = ejabberd_hooks:run_fold(filter_local_packet, LDstDomain, Acc3, []),
-    case mongoose_stanza:get(routing_decision, Acc4) of
+    case mongoose_acc:get(routing_decision, Acc4) of
         send ->
-            Packet = mongoose_stanza:get(element, Acc4),
+            Packet = mongoose_acc:get(element, Acc4),
             case Handler of
                 {apply_fun, Fun} ->
                     Fun(From, To, Packet);

@@ -239,19 +239,19 @@ process_packet(From, To, _InvalidReq, OrigPacket) ->
 %% Hook handlers
 %%====================================================================
 
--spec prevent_service_unavailable(Acc :: mongoose_stanza:t(), From :: jid(), To :: jid(),
+-spec prevent_service_unavailable(Acc :: mongoose_acc:t(), From :: jid(), To :: jid(),
                                   Packet :: jlib:xmlel()) ->
-    mongoose_stanza:t() | {stop, mongoose_stanza:t()}.
+    mongoose_acc:t() | {stop, mongoose_acc:t()}.
 prevent_service_unavailable(Acc, _From, _To, Packet) ->
     case xml:get_tag_attr_s(<<"type">>, Packet) of
         <<"groupchat">> -> {stop, Acc};
         _Type -> Acc
     end.
 
--spec get_muc_service(Acc :: mongoose_stanza:t(), From :: ejabberd:jid(), To :: ejabberd:jid(),
-                      NS :: binary(), ejabberd:lang()) -> mongoose_stanza:t().
+-spec get_muc_service(Acc :: mongoose_acc:t(), From :: ejabberd:jid(), To :: ejabberd:jid(),
+                      NS :: binary(), ejabberd:lang()) -> mongoose_acc:t().
 get_muc_service(Acc, _From, #jid{lserver = LServer} = _To, <<"">>, _Lang) ->
-    Nodes = mongoose_stanza:get(local_items, Acc, []),
+    Nodes = mongoose_acc:get(local_items, Acc, []),
     XMLNS = case gen_mod:get_module_opt_by_subhost(
                    LServer, ?MODULE, legacy_mode, ?DEFAULT_LEGACY_MODE) of
                 true -> ?NS_MUC;

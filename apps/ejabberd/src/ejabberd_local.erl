@@ -227,9 +227,9 @@ unregister_iq_handler(Host, XMLNS) ->
 refresh_iq_handlers() ->
     ejabberd_local ! refresh_iq_handlers.
 
--spec bounce_resource_packet(Acc:: mongoose_stanza:t(), From :: ejabberd:jid(),
+-spec bounce_resource_packet(Acc:: mongoose_acc:t(), From :: ejabberd:jid(),
     To :: ejabberd:jid(),
-    Packet :: jlib:xmlel()) -> {'stop', mongoose_stanza:t()}.
+    Packet :: jlib:xmlel()) -> {'stop', mongoose_acc:t()}.
 bounce_resource_packet(Acc, From, To, Packet) ->
     bounce_resource_packet(From, To, Packet),
     {stop, Acc}.

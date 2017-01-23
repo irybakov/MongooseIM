@@ -414,10 +414,10 @@ row_to_message_id({BMessID, _, _}) ->
     list_to_integer(binary_to_list(BMessID)).
 
 
--spec remove_archive(mongoose_stanza:t(),
+-spec remove_archive(mongoose_acc:t(),
                      ejabberd:server(),
                      mod_mam:archive_id(),
-                     ejabberd:jid()) -> mongoose_stanza:t().
+                     ejabberd:jid()) -> mongoose_acc:t().
 remove_archive(Acc, Host, RoomID, _RoomJID) ->
     {updated, _} =
     mod_mam_utils:success_sql_query(

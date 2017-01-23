@@ -259,9 +259,9 @@ lookup_messages(Result, Host, ArcID, _ArcJID,
     Result.
 
 
--spec remove_archive(Acc :: mongoose_stanza:t(), Host :: ejabberd:server(),
+-spec remove_archive(Acc :: mongoose_acc:t(), Host :: ejabberd:server(),
                      RoomId :: mod_mam:archive_id(),
-                     RoomJID :: ejabberd:jid()) -> mongoose_stanza:t().
+                     RoomJID :: ejabberd:jid()) -> mongoose_acc:t().
 remove_archive(Acc, Host, ArcID, _ArcJID) ->
     wait_flushing(Host, ArcID),
     Acc.

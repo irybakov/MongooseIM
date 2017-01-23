@@ -5,7 +5,7 @@
 %%% processing chain.
 %%%
 %%%-------------------------------------------------------------------
--module(mongoose_stanza).
+-module(mongoose_acc).
 -author("bartek").
 
 -include("jlib.hrl").

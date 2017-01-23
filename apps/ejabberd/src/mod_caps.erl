@@ -229,7 +229,7 @@ disco_info(Acc, Host, Module, Node, Lang) ->
     end.
 
 c2s_presence_in(Acc, {From, To, {_, _, Attrs, Els}}) ->
-    C2SState = mongoose_stanza:get(c2s_state, Acc),
+    C2SState = mongoose_acc:get(c2s_state, Acc),
     ?DEBUG("Presence to ~p from ~p with Els ~p", [To, From, Els]),
     Type = xml:get_attr_s(<<"type">>, Attrs),
     Subscription = ejabberd_c2s:get_subscription(From,
@@ -252,7 +252,7 @@ c2s_presence_in(Acc, {From, To, {_, _, Attrs, Els}}) ->
             NewRs = modify_caps_resources(NewCaps, Insert, Rs, LFrom, To, From),
             NState = ejabberd_c2s:set_aux_field(caps_resources, NewRs,
                                        C2SState),
-            mongoose_stanza:put(c2s_state, NState, Acc);
+            mongoose_acc:put(c2s_state, NState, Acc);
        _ -> Acc
     end.
 
@@ -284,9 +284,9 @@ c2s_filter_packet(InAcc, Host, C2SState, {pep_message, Feature}, To, _Packet) ->
             case gb_trees:lookup(LTo, Rs) of
                 {value, Caps} ->
                     Drop = not lists:member(Feature, get_features(Host, Caps)),
-                    {stop, mongoose_stanza:put(drop, Drop, InAcc)};
+                    {stop, mongoose_acc:put(drop, Drop, InAcc)};
                 none ->
-                    {stop, mongoose_stanza:put(drop, true, InAcc)}
+                    {stop, mongoose_acc:put(drop, true, InAcc)}
             end;
         _ -> InAcc
     end;
@@ -492,15 +492,15 @@ caps_delete_fun(Node) ->
 
 make_my_disco_hash(Host) ->
     JID = jid:make(<<"">>, Host, <<"">>),
-    F = fun(K, A) -> mongoose_stanza:put(K, [], A) end,
-    % TODO: replace with mongoose_stanza:from_map
+    F = fun(K, A) -> mongoose_acc:put(K, [], A) end,
+    % TODO: replace with mongoose_acc:from_map
     A0 = lists:foldl(F,
-                     mongoose_stanza:new(),
+                     mongoose_acc:new(),
                      [features, identities, info]), % we are soooo functional
     A1 = ejabberd_hooks:run_fold(disco_local_features, Host, A0, [JID, JID, <<"">>, <<"">>]),
     A2 = ejabberd_hooks:run_fold(disco_local_identity, Host, A1, [JID, JID, <<"">>, <<"">>]),
     A3 = ejabberd_hooks:run_fold(disco_info, Host, A2, [Host, undefined, <<"">>, <<"">>]),
-    case mongoose_stanza:to_map(A3) of
+    case mongoose_acc:to_map(A3) of
         #{features := Features, identities := Identities, info := Info} ->
             Feats = lists:map(fun ({{Feat, _Host}}) ->
                                       #xmlel{name = <<"feature">>,

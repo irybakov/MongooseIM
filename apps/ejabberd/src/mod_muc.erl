@@ -617,9 +617,9 @@ route_by_type(<<"iq">>, {From, To, Packet}, #state{host = Host} = State) ->
     case jlib:iq_query_info(Packet) of
         #iq{type = get, xmlns = ?NS_DISCO_INFO = XMLNS, lang = Lang} = IQ ->
             InfoResp = ejabberd_hooks:run_fold(disco_info, ServerHost,
-                                                      mongoose_stanza:new(),
+                                                      mongoose_acc:new(),
                                                       [ServerHost, ?MODULE, <<"">>, Lang]),
-            Info = mongoose_stanza:get(info, InfoResp, []),
+            Info = mongoose_acc:get(info, InfoResp, []),
             Res = IQ#iq{type = result,
                         sub_el = [#xmlel{name = <<"query">>,
                                          attrs = [{<<"xmlns">>, XMLNS}],

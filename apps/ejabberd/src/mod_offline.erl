@@ -164,9 +164,9 @@ stop(Host) ->
 %% ------------------------------------------------------------------
 
 amp_failed_event(#xmlel{} = Packet, From) ->
-    amp_failed_event(mongoose_stanza:from_element(Packet), From);
+    amp_failed_event(mongoose_acc:from_element(Packet), From);
 amp_failed_event(Acc, From) ->
-    mod_amp:check_packet(mongoose_stanza:get(element, Acc), From, offline_failed),
+    mod_amp:check_packet(mongoose_acc:get(element, Acc), From, offline_failed),
     Acc.
 
 handle_offline_msg(#offline_msg{us=US} = Msg, AccessMaxOfflineMsgs) ->
@@ -253,9 +253,9 @@ srv_name(Host) ->
     gen_mod:get_module_proc(Host, srv_name()).
 
 determine_amp_strategy(Acc, FromJID, ToJID, Packet, Arg) ->
-    Strategy = mongoose_stanza:get(strategy, Acc),
+    Strategy = mongoose_acc:get(strategy, Acc),
     NStrategy = do_determine_amp_strategy(Strategy, FromJID, ToJID, Packet, Arg),
-    mongoose_stanza:put(strategy, NStrategy, Acc).
+    mongoose_acc:put(strategy, NStrategy, Acc).
 
 do_determine_amp_strategy(Strategy = #amp_strategy{deliver = [none]},
                        _FromJID, ToJID, _Packet, initial_check) ->
@@ -353,12 +353,12 @@ get_features(Key, Acc, _From, _To, <<"">> = _Node, _Lang) ->
     add_feature(Key, Acc, ?NS_FEATURE_MSGOFFLINE);
 get_features(Key, Acc, _From, _To, ?NS_FEATURE_MSGOFFLINE, _Lang) ->
     %% override all lesser features...
-    mongoose_stanza:put(Key, [], Acc);
+    mongoose_acc:put(Key, [], Acc);
 get_features(_Key, Acc, _From, _To, _Node, _Lang) ->
     Acc.
 
 add_feature(Key, Acc, Feature) ->
-    mongoose_stanza:append(Key, Feature, Acc).
+    mongoose_acc:append(Key, Feature, Acc).
 
 %% This function should be called only from hook
 %% Calling it directly is dangerous and my store unwanted message
