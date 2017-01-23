@@ -541,10 +541,8 @@ disco_local_items(Acc, _From, _To, _Node, _Lang) -> Acc.
           Lang :: binary())
         -> mongoose_stanza:t().
 disco_sm_identity(Acc, From, To, Node, _Lang) ->
-    Ids = mongoose_stanza:get(sm_identity, Acc, []),
-    NIds = disco_identity(jid:to_lower(jid:to_bare(To)), Node, From)
-        ++ Ids,
-    mongoose_stanza:put(sm_identity, NIds, Acc).
+    NIds = disco_identity(jid:to_lower(jid:to_bare(To)), Node, From),
+    mongoose_stanza:append(sm_identity, NIds, Acc).
 
 disco_identity(_Host, <<>>, _From) ->
     [#xmlel{name = <<"identity">>,

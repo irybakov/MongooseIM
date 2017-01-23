@@ -252,7 +252,7 @@ c2s_presence_in(Acc, {From, To, {_, _, Attrs, Els}}) ->
             NewRs = modify_caps_resources(NewCaps, Insert, Rs, LFrom, To, From),
             NState = ejabberd_c2s:set_aux_field(caps_resources, NewRs,
                                        C2SState),
-            mongoose_stanza:put(state, NState, Acc);
+            mongoose_stanza:put(c2s_state, NState, Acc);
        _ -> Acc
     end.
 
@@ -292,10 +292,10 @@ c2s_filter_packet(InAcc, Host, C2SState, {pep_message, Feature}, To, _Packet) ->
     end;
 c2s_filter_packet(Acc, _, _, _, _, _) -> Acc.
 
-c2s_broadcast_recipients(_, Host, C2SState,
+c2s_broadcast_recipients(Acc, Host, C2SState,
                          {pep_message, Feature}, _From, _Packet) ->
     Resources = ejabberd_c2s:get_aux_field(caps_resources, C2SState),
-    c2s_broadcast_recipients(Resources, [], Feature, Host);
+    c2s_broadcast_recipients(Resources, Acc, Feature, Host);
 c2s_broadcast_recipients(Acc, _, _, _, _, _) -> Acc.
 
 c2s_broadcast_recipients({ok, Rs}, Rec, Feature, Host) ->
@@ -307,8 +307,7 @@ c2s_broadcast_recipients({ok, Rs}, Rec, Feature, Host) ->
             false -> Ac
         end
                   end,
-        Rec, Rs),
-    Rec;
+        Rec, Rs);
 c2s_broadcast_recipients(_, Rec, _, _) ->
     Rec.
 
