@@ -919,7 +919,7 @@ xfield(Type, Label, Var, Val, Lang) ->
 %%       http://xmpp.org/extensions/xep-0045.html#createroom-unique
 -spec iq_get_unique(ejabberd:jid()) -> jlib:xmlcdata().
 iq_get_unique(From) ->
-        #xmlcdata{content = sha:sha1_hex(term_to_binary([From, os:timestamp(),
+        #xmlcdata{content = sha:sha1_hex(term_to_binary([From, p1_time_compat:timestamp(),
                                                          randoms:get_string()]))}.
 
 
