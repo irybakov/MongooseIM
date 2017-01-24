@@ -14,12 +14,11 @@
 %% Types
 %%----------------------------------------------------------------------
 
--record(packet_handler, { module, function }).
+-record(packet_handler, { module, extra }).
 
--type handler_fun() :: fun((From :: jid(), To :: jid(), Packet :: exml:element()) -> any()).
 -type t() :: #packet_handler{
                 module :: module(),
-                function :: atom() | handler_fun()
+                extra :: any()
                }.
 
 -export_type([t/0]).
@@ -28,33 +27,24 @@
 %% Callback declarations
 %%----------------------------------------------------------------------
 
--callback process(From :: jid(), To :: jid(), Packet :: exml:element()) -> any().
+-callback process_packet(From :: jid(), To :: jid(), Packet :: exml:element(), Extra :: any()) ->
+    any().
 
 %%----------------------------------------------------------------------
 %% API
 %%----------------------------------------------------------------------
 
--export([new/0, new/1, new/2, process/4]).
+-export([new/1, new/2, process/4]).
 
--spec new() -> t().
-new() ->
-    Pid = self(),
-    Fun = fun(From, To, Packet) ->
-                  Pid ! {route, From, To, Packet}
-          end,
-    new(Fun).
+-spec new(Module :: module()) -> t().
+new(Module) ->
+    new(Module, undefined).
 
--spec new(Function :: handler_fun()) -> t().
-new(Fun) when is_function(Fun, 3) ->
-    #packet_handler{ module = undefined, function = Fun }.
-
--spec new(Module :: module(), Function :: atom()) -> t().
-new(Module, Function) when is_atom(Module), is_atom(Function) ->
-    #packet_handler{ module = Module, function = Function }.
+-spec new(Module :: module(), Extra :: any()) -> t().
+new(Module, Extra) when is_atom(Module) ->
+    #packet_handler{ module = Module, extra = Extra }.
 
 -spec process(Handler :: t(), From :: jid(), To :: jid(), Packet :: exml:element()) -> any().
-process(#packet_handler{ module = undefined, function = Fun }, From, To, Packet) ->
-    Fun(From, To, Packet);
-process(#packet_handler{ module = Module, function = Function }, From, To, Packet) ->
-    Module:Function(From, To, Packet).
+process(#packet_handler{ module = Module, extra = Extra }, From, To, Packet) ->
+    Module:process_packet(From, To, Packet, Extra).
 

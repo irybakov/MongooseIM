@@ -31,17 +31,16 @@
 %% API
 -export([route/3,
          route_error/4,
-         register_route/1,
          register_route/2,
-         register_routes/1,
+         register_routes/2,
          unregister_route/1,
          unregister_routes/1,
          dirty_get_all_routes/0,
          dirty_get_all_domains/0,
-         register_components/1,
          register_components/2,
-         register_component/1,
+         register_components/3,
          register_component/2,
+         register_component/3,
          lookup_component/1,
          lookup_component/2,
          unregister_component/1,
@@ -122,14 +121,16 @@ route_error(From, To, ErrPacket, OrigPacket) ->
             ok
     end.
 
--spec register_components([Domain :: domain()]) -> ok | {error, any()}.
-register_components(Domains) ->
-    register_components(Domains, node()).
+-spec register_components([Domain :: domain()],
+                          Handler :: mongoose_packet_handler:t()) -> ok | {error, any()}.
+register_components(Domains, Handler) ->
+    register_components(Domains, node(), Handler).
 
--spec register_components([Domain :: domain()], Node :: node()) -> ok | {error, any()}.
-register_components(Domains, Node) ->
+-spec register_components([Domain :: domain()],
+                          Node :: node(),
+                          Handler :: mongoose_packet_handler:t()) -> ok | {error, any()}.
+register_components(Domains, Node, Handler) ->
     LDomains = [{jid:nameprep(Domain), Domain} || Domain <- Domains],
-    Handler = mongoose_packet_handler:new(),
     F = fun() ->
             [do_register_component(LDomain, Handler, Node) || LDomain <- LDomains],
             ok
@@ -144,13 +145,16 @@ register_components(Domains, Node) ->
 %% and external_components_global as globals. Registration should be done by register_component/1
 %% or register_components/1, which registers them for current node; the arity 2 funcs are
 %% here for testing.
--spec register_component(Domain :: domain()) -> ok | {error, any()}.
-register_component(Domain) ->
-    register_components([Domain], node()).
+-spec register_component(Domain :: domain(),
+                         Handler :: mongoose_packet_handler:t()) -> ok | {error, any()}.
+register_component(Domain, Handler) ->
+    register_components([Domain], node(), Handler).
 
--spec register_component(Domain :: domain(), Node :: node()) -> ok | {error, any()}.
-register_component(Domain, Node) ->
-    register_components([Domain], Node).
+-spec register_component(Domain :: domain(),
+                         Node :: node(),
+                         Handler :: mongoose_packet_handler:t()) -> ok | {error, any()}.
+register_component(Domain, Node, Handler) ->
+    register_components([Domain], Node, Handler).
 
 do_register_component({error, Domain}, _Handler, _Node) ->
     error({invalid_domain, Domain});
@@ -260,19 +264,15 @@ lookup_component(Domain) ->
 lookup_component(Domain, Node) ->
     mnesia:dirty_read(external_component, {Domain, Node}).
 
--spec register_route(Domain :: domain()) -> any().
-register_route(Domain) ->
-    register_route(Domain, mongoose_packet_handler:new()).
-
 -spec register_route(Domain :: domain(),
                      Handler :: mongoose_packet_handler:t()) -> any().
 register_route(Domain, Handler) ->
     register_route_to_ldomain(jid:nameprep(Domain), Domain, Handler).
 
--spec register_routes([domain()]) -> 'ok'.
-register_routes(Domains) ->
+-spec register_routes([domain()], mongoose_packet_handler:t()) -> 'ok'.
+register_routes(Domains, Handler) ->
     lists:foreach(fun(Domain) ->
-                      register_route(Domain)
+                      register_route(Domain, Handler)
                   end,
                   Domains).
 
