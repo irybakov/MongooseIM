@@ -19,6 +19,7 @@ all() ->
      {group, pgsql}].
 
 init_per_suite(Config) ->
+    application:ensure_all_started(exometer),
     Config.
 
 end_per_suite(_Config) ->
@@ -87,7 +88,7 @@ meck_config(Server, KeepaliveInterval) ->
                    ({odbc_start_interval, _Host}) -> 30;
                    (max_fsm_queue) -> 1024;
                    ({odbc_server, _}) -> server(Server);
-                   (Arg) -> meck:passthrough([Arg])
+                   (all_metrics_are_global) -> false
                 end).
 
 meck_db(odbc) ->
