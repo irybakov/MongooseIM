@@ -78,11 +78,5 @@
     ok).
 %%    lager:error("Deprecated call", [])).
 
--define(INITIALISE(Elem),
-    mongoose_acc:initialise(Elem, ?FILE, ?LINE)).
-
--define(TERMINATE(Acc),
-    mongoose_acc:terminate(Acc, ?FILE, ?LINE)).
-
 -define(DUMP(Acc),
     mongoose_acc:dump(Acc)).
