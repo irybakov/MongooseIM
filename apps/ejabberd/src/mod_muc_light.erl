@@ -133,7 +133,7 @@ start(Host, Opts) ->
     MUCHost = gen_mod:get_opt_subhost(Host, Opts, default_host()),
     mod_muc_light_db_backend:start(Host, MUCHost),
     mongoose_subhosts:register(Host, MUCHost),
-    ejabberd_router:register_route(MUCHost, {apply, ?MODULE, route}),
+    ejabberd_router:register_route(MUCHost, mongoose_packet_handler:new(?MODULE, route)),
 
     ejabberd_hooks:add(is_muc_room_owner, MUCHost, ?MODULE, is_room_owner, 50),
     ejabberd_hooks:add(muc_room_pid, MUCHost, ?MODULE, muc_room_pid, 50),

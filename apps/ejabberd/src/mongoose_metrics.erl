@@ -133,7 +133,8 @@ get_odbc_mam_async_stats() ->
                       [_ | _] = Children -> Children;
                       _ -> []
                   end,
-    MamAsynODBCWorkers = [catch element(2, gen_server:call(Pid, get_connection, 1000)) || {_, Pid, worker, _} <- MamChildren],
+    MamAsynODBCWorkers = [catch element(2, gen_server:call(Pid, get_connection, 1000))
+                          || {_, Pid, worker, _} <- MamChildren],
     get_odbc_stats(MamAsynODBCWorkers).
 
 get_dist_data_stats() ->

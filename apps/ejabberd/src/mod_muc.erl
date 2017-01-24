@@ -319,7 +319,7 @@ init([Host, Opts]) ->
     F = fun(From, To, Packet) ->
             mod_muc:route({From, To, Packet}, State)
         end,
-    ejabberd_router:register_route(MyHost, {apply_fun, F}),
+    ejabberd_router:register_route(MyHost, mongoose_packet_handler:new(F)),
     mongoose_subhosts:register(Host, MyHost),
 
     load_permanent_rooms(MyHost, Host,

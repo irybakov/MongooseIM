@@ -469,7 +469,7 @@ cancel_timer(TRef) ->
     end.
 
 do_register_host(Host) ->
-    ejabberd_router:register_route(Host, {apply, ?MODULE, route}),
+    ejabberd_router:register_route(Host, mongoose_packet_handler:new(?MODULE, route)),
     ejabberd_hooks:add(local_send_to_resource_hook, Host,
                        ?MODULE, bounce_resource_packet, 100).
 

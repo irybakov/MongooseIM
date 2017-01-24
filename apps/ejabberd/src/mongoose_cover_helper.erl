@@ -26,7 +26,7 @@ start(Apps) ->
 
 analyze() ->
     NowList = jlib:now_to_utc_string(os:timestamp()),
-    cover:export("/tmp/" ++ atom_to_list(node())++ "." ++ NowList ++".coverdata"),
+    cover:export("/tmp/" ++ atom_to_list(node()) ++ "." ++ NowList ++ ".coverdata"),
     cover:stop().
 
 cover_compile_app(App) ->
